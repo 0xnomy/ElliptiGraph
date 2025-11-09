@@ -1,0 +1,11 @@
+pandas
+numpy
+pyArango
+matplotlib
+seaborn
+plotly
+dash
+dash-bootstrap-components
+scikit-learn
+requests
+networkx
