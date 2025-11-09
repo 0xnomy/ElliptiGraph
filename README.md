@@ -178,8 +178,8 @@ Interactive web application built with Plotly Dash:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd A1
+git clone https://github.com/0xnomy/ElliptiGraph
+cd ElliptiGraph
 
 # Create virtual environment
 python -m venv venv
