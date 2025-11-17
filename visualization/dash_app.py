@@ -130,12 +130,7 @@ app.layout = dbc.Container([
                          '-webkit-text-fill-color': 'transparent',
                          'font-weight': 'bold',
                          'font-size': '3rem'}),
-                html.H5("Bitcoin Transaction Network Analysis Platform", className="text-muted mb-1"),
-                html.P([
-                    html.I(className="fas fa-university me-2"),
-                    "Assignment for DS461 - Big Data Analytics | ",
-                    html.Strong("Muhammad Hamza M. Zaidi & Nauman Ali Murad")
-                ], className="small text-muted")
+                html.H5("Bitcoin Transaction Network Analysis Platform", className="text-muted mb-1")
             ], className="text-center py-4", style={
                 'background': 'rgba(102, 126, 234, 0.1)',
                 'border-radius': '15px',
@@ -557,13 +552,7 @@ app.layout = dbc.Container([
             html.I(className="fas fa-code me-2"),
             "ElliptiGraph © 2025 | ",
             f"Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        ], className="text-center text-muted mb-1"),
-        html.P([
-            html.Small([
-                "Assignment for DS461 - Big Data Analytics | Assignment 1 | ",
-                html.Strong("M. Hamza M. Zaidi & Nauman Ali Murad")
-            ])
-        ], className="text-center text-muted small")
+        ], className="text-center text-muted mb-1")
     ], className="mt-4 mb-3")
 ], fluid=True, className="px-4")
 
