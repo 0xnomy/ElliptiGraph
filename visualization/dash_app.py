@@ -939,11 +939,24 @@ def update_arango_degree(tab):
      Input("main-tabs", "active_tab")]
 )
 def execute_queries(sq1, sq2, sq3, sq4, cq1, cq2, cq3, cq4, run_all, tab):
-    if tab != "queries":
-        return [], [], {}, []
-    
     # Determine which button was clicked
     triggered = ctx.triggered_id if ctx.triggered_id else None
+    
+    # If only tab was triggered (not a button), return default state
+    if triggered == "main-tabs" or triggered is None:
+        default_simple = dbc.Alert([
+            html.H6([html.I(className="fas fa-info-circle me-2"), "No Query Executed"]),
+            html.P("Click a button above to execute queries on the ArangoDB database")
+        ], color="info")
+        default_complex = dbc.Alert([
+            html.H6([html.I(className="fas fa-info-circle me-2"), "No Query Executed"]),
+            html.P("Click a button above to execute complex graph queries")
+        ], color="info")
+        default_status = dbc.Alert([
+            html.I(className="fas fa-database me-2"),
+            f"Connected to ArangoDB | Ready to execute queries" if ARANGO_CONN else "ArangoDB Not Connected"
+        ], color="info" if ARANGO_CONN else "warning")
+        return default_simple, default_complex, {}, default_status
     
     simple_results = []
     complex_results = []
@@ -953,11 +966,22 @@ def execute_queries(sq1, sq2, sq3, sq4, cq1, cq2, cq3, cq4, run_all, tab):
     if not ARANGO_CONN:
         status = dbc.Alert([
             html.H6([html.I(className="fas fa-exclamation-triangle me-2"), "ArangoDB Not Connected"]),
-            html.P("Cannot execute queries without database connection")
+            html.P("Cannot execute queries without database connection"),
+            html.Hr(),
+            html.P([
+                html.Strong("To connect:"), html.Br(),
+                "1. Start ArangoDB container: ", html.Code("docker start arangodb"), html.Br(),
+                "2. Or run: ", html.Code("docker run -p 8529:8529 -e ARANGO_ROOT_PASSWORD=root --name arangodb arangodb/arangodb"), html.Br(),
+                "3. Restart the dashboard"
+            ], className="small")
         ], color="danger")
-        return simple_results, complex_results, viz_fig, status
+        default_simple = dbc.Alert("ArangoDB connection required", color="warning")
+        default_complex = dbc.Alert("ArangoDB connection required", color="warning")
+        return default_simple, default_complex, viz_fig, status
     
     try:
+        print(f"🔍 Query triggered: {triggered}")
+        
         # Import query classes
         try:
             from graph.queries_simple import SimpleQueries
@@ -965,12 +989,15 @@ def execute_queries(sq1, sq2, sq3, sq4, cq1, cq2, cq3, cq4, run_all, tab):
             simple_q = SimpleQueries(ARANGO_CONN)
             complex_q = ComplexQueries(ARANGO_CONN)
         except ImportError as e:
+            print(f"❌ Import error: {str(e)}")
             status = dbc.Alert(f"Failed to import query modules: {str(e)}", color="danger")
             return simple_results, complex_results, viz_fig, status
         
         # Execute Simple Query 1: Count by Class
         if triggered == "query-simple-1" or triggered == "query-run-all":
+            print("📊 Executing Query 1: Count by Class")
             results = simple_q.query_1_count_by_class()
+            print(f"   Results: {len(results) if results else 0} rows")
             if results:
                 df = pd.DataFrame(results)
                 simple_results.append(html.H6("Query 1: Count by Class", className="text-primary mt-3"))
@@ -1178,20 +1205,16 @@ def execute_queries(sq1, sq2, sq3, sq4, cq1, cq2, cq3, cq4, run_all, tab):
                 viz_fig.update_layout(template="plotly_dark", height=400)
                 status = dbc.Alert("Complex query executed successfully!", color="success")
         
-        # Default display
-        if not simple_results:
+        # If no query was triggered, show default message
+        if not simple_results and not complex_results:
             simple_results = dbc.Alert([
                 html.H6([html.I(className="fas fa-info-circle me-2"), "No Query Executed"]),
                 html.P("Click a button above to execute queries on the ArangoDB database")
             ], color="info")
-        
-        if not complex_results:
             complex_results = dbc.Alert([
                 html.H6([html.I(className="fas fa-info-circle me-2"), "No Query Executed"]),
                 html.P("Click a button above to execute complex graph queries")
             ], color="info")
-        
-        if not status:
             status = dbc.Alert([
                 html.I(className="fas fa-database me-2"),
                 f"Connected to ArangoDB | Ready to execute queries"
